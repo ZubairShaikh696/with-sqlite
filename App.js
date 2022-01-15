@@ -51,7 +51,7 @@ function Items({ done: doneHeading, onPressItem }) {
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionHeading}>{heading}</Text>
-      {items.map(({ id, done, value1,value2 }) => (
+      {items.map(({ id, done, title,description }) => (
         <TouchableOpacity
           key={id}
           onPress={() => onPressItem && onPressItem(id)}
@@ -62,7 +62,7 @@ function Items({ done: doneHeading, onPressItem }) {
             padding: 8,
           }}
         >
-          <Text style={{ color: done ? "#fff" : "#000" }}>{value1}{value2}</Text>
+          <Text style={{ color: done ? "#fff" : "#000" }}>{title + " " +description}</Text>
         </TouchableOpacity>
       ))}
     </View>
@@ -78,20 +78,20 @@ export default function App() {
     db.transaction((tx) => {
       tx.executeSql(
         // "drop table items"
-        "create table if not exists items (id integer primary key not null, done int, value1 text,value2 text);"
+        "create table if not exists items (id integer primary key not null, done int, title text,description text);"
       );
     });
   }, []);
 
-  const add = (title) => {
+  const add = (title,description) => {
     // is text empty?
-    if (title === null || title === "") {
+    if (title === null & description === null) {
       return false;
     }
 
     db.transaction(
       (tx) => {
-        tx.executeSql("insert into items (done, value1,value2) values (0,?, ?)", [title,description]);
+        tx.executeSql("insert into items (done, title,description) values (0,?, ?)", [title,description]);
         tx.executeSql("select * from items", [], (_, { rows }) =>
           console.log(JSON.stringify(rows))
         );
@@ -118,10 +118,10 @@ export default function App() {
           <View style={styles.flexRow}>
             <TextInput
               onChangeText={(text) => setTitle(text)}
-              onSubmitEditing={() => {
-                add(title);
-                setTitle(null);
-              }}
+              // onSubmitEditing={() => {
+              //   add(title);
+              //   setTitle(null);
+              // }}
               placeholder="Title"
               style={styles.input}
               value={title}
@@ -140,7 +140,7 @@ export default function App() {
             />
           </View>
           <Button title="Insert" onPress={()=>{
-            add(title);
+            add(title,description);
             setTitle(null);
             setDescription(null)
           }}></Button>
